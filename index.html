@@ -5,73 +5,176 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Comanda Pro</title>
+    <title>Comanda Firezone</title>
     <link rel="manifest" href="manifest.json">
     <style>
-        :root { --primary: #007AFF; --danger: #FF3B30; --success: #34C759; --bg: #F2F2F7; }
-        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); margin: 0; padding: 20px; user-select: none; color: #1c1c1e; }
-        .container { max-width: 400px; margin: 0 auto; }
-        
-        .card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .input-group { display: flex; gap: 8px; margin-bottom: 10px; }
-        input { width: 100%; border: 1px solid #d1d1d6; border-radius: 8px; padding: 12px; font-size: 16px; box-sizing: border-box; }
-        .input-qtd { width: 80px; text-align: center; }
-        
-        button { border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
-        button:active { opacity: 0.6; }
-        .btn-add { width: 100%; background: var(--primary); color: white; padding: 14px; font-size: 16px; }
+        /* Identidade Visual Botafogo / Firezone */
+        :root { 
+            --bfr-black: #000000; 
+            --bfr-white: #FFFFFF; 
+            --bg-page: #F4F4F4; /* Cinza gelo para fundo */
+            --bg-card: #FFFFFF;
+            --accent: #333333;
+            --danger: #D10000; /* Vermelho para ações destrutivas */
+        }
 
-        /* Lista Dinâmica */
-        ul { list-style: none; padding: 0; }
-        li { background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+            background: var(--bg-page); 
+            margin: 0; 
+            padding: 20px 15px; /* Margem ajustada para celular */
+            user-select: none; 
+            color: var(--bfr-black);
+            padding-bottom: 100px; /* Espaço para o rodapé fixo não cobrir lista */
+        }
+
+        .container { max-width: 450px; margin: 0 auto; }
+        
+        /* Cabeçalho */
+        header { text-align: center; margin-bottom: 25px; }
+        h2 { 
+            font-size: 24px; 
+            text-transform: uppercase; 
+            letter-spacing: -1px; 
+            margin: 0; 
+            font-weight: 900;
+        }
+        .sub-header { font-size: 12px; color: #666; letter-spacing: 2px; text-transform: uppercase; margin-top: 5px; }
+
+        /* Card de Input */
+        .card { 
+            background: var(--bg-card); 
+            border-radius: 16px; 
+            padding: 20px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
+            margin-bottom: 25px; 
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .input-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        
+        /* Inputs Estilizados */
+        input { 
+            width: 100%; 
+            border: 2px solid #E5E5E5; 
+            background: #FAFAFA;
+            border-radius: 10px; 
+            padding: 14px; 
+            font-size: 16px; 
+            box-sizing: border-box; 
+            outline: none;
+            transition: border-color 0.2s;
+            font-weight: 500;
+        }
+        input:focus { border-color: var(--bfr-black); background: #FFF; }
+        .input-qtd { width: 90px; text-align: center; }
+
+        /* Botão Principal (Preto e Branco) */
+        button { border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: transform 0.1s; }
+        button:active { transform: scale(0.98); opacity: 0.9; }
+        
+        .btn-add { 
+            width: 100%; 
+            background: var(--bfr-black); 
+            color: var(--bfr-white); 
+            padding: 16px; 
+            font-size: 16px; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        /* Lista de Itens */
+        ul { list-style: none; padding: 0; margin: 0; }
+        li { 
+            background: var(--bg-card); 
+            padding: 15px; 
+            border-radius: 12px; 
+            margin-bottom: 12px; 
+            border-left: 5px solid var(--bfr-black); /* Detalhe Botafogo */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
         
         .item-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .item-detalhes { display: flex; flex-direction: column; flex-grow: 1; }
-        .item-nome { font-weight: 700; font-size: 16px; }
-        .item-subtotal { font-size: 13px; color: #8e8e93; }
-        .item-valor-total { font-weight: 600; color: var(--primary); }
+        .item-nome { font-weight: 800; font-size: 17px; margin-bottom: 2px; }
+        .item-subtotal { font-size: 13px; color: #666; font-weight: 500;}
+        .item-valor-total { font-weight: 700; color: var(--bfr-black); font-size: 15px; margin-top: 2px; }
 
-        /* Inputs de Edição na Lista */
-        .edit-input { padding: 8px; font-size: 14px; margin-bottom: 5px; border: 1px solid var(--primary); }
+        /* Edição */
+        .edit-input { padding: 8px; font-size: 14px; margin-bottom: 5px; border: 1px solid var(--bfr-black); width: 90%; }
+        .controles { display: flex; align-items: center; gap: 8px; }
 
-        /* Controles */
-        .controles { display: flex; align-items: center; gap: 10px; }
-        .contador { display: flex; align-items: center; gap: 12px; background: #f8f8f8; padding: 5px 10px; border-radius: 20px; }
-        .btn-step { background: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 2px rgba(0,0,0,0.1); font-size: 18px; color: var(--primary); }
-        .btn-edit { background: #E5E5EA; color: #3A3A3C; padding: 8px 12px; font-size: 12px; }
-        .btn-save { background: var(--success); color: white; padding: 8px 12px; font-size: 12px; }
+        /* Contadores e Botões Pequenos */
+        .contador { display: flex; align-items: center; gap: 10px; background: #EEE; padding: 4px 8px; border-radius: 8px; }
+        .btn-step { background: var(--bfr-white); width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--bfr-black); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .btn-icon { background: #EEE; color: #333; padding: 8px; border-radius: 8px; font-size: 14px; }
+        .btn-save { background: var(--bfr-black); color: white; padding: 8px 12px; font-size: 12px; border-radius: 8px; }
 
-        /* Totais */
-        .total-section { background: white; padding: 20px; border-radius: 15px; text-align: right; margin-top: 20px; }
-        .grand-total { font-size: 26px; font-weight: 800; color: #000; }
-        .btn-clear { background: transparent; color: var(--danger); margin-top: 15px; width: 100%; font-size: 14px; }
+        /* Rodapé Fixo (Total) */
+        .total-dock { 
+            position: fixed; 
+            bottom: 20px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            width: 90%; 
+            max-width: 420px;
+            background: var(--bfr-black); 
+            color: var(--bfr-white);
+            padding: 15px 20px; 
+            border-radius: 16px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            z-index: 100;
+        }
+        
+        .total-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
+        .total-value { font-size: 24px; font-weight: 800; }
+        
+        .btn-reset { 
+            background: rgba(255,255,255,0.2); 
+            color: white; 
+            border-radius: 8px; 
+            padding: 8px 12px; 
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2 style="text-align: center;">📊 Comanda Pro</h2>
+        <header>
+            <h2>Comanda Firezone</h2>
+            <div class="sub-header">24/06 • Botafogo</div>
+        </header>
         
         <div class="card">
-            <input type="text" id="nome" placeholder="Nome do item" style="margin-bottom: 10px;">
+            <input type="text" id="nome" placeholder="Nome do item (ex: Cerveja)" style="margin-bottom: 10px;">
             <div class="input-group">
-                <input type="number" id="preco" placeholder="Preço R$" inputmode="decimal">
+                <input type="number" id="preco" placeholder="R$ 0,00" inputmode="decimal">
                 <input type="number" id="qtd" value="1" class="input-qtd" inputmode="numeric">
             </div>
-            <button class="btn-add" onclick="adicionar()">Adicionar</button>
+            <button class="btn-add" onclick="adicionar()">Adicionar Pedido</button>
         </div>
 
         <ul id="lista"></ul>
+        <div style="height: 60px;"></div> </div>
 
-        <div class="total-section">
-            <div style="font-size: 14px; color: #8e8e93;">Taxa (10%): R$ <span id="valorTaxa">0.00</span></div>
-            <div class="grand-total">R$ <span id="totalComDez">0.00</span></div>
-            <button class="btn-clear" onclick="limpar()">Zerar Comanda</button>
+    <div class="total-dock">
+        <div>
+            <div class="total-label">Total da Comanda</div>
+            <div class="total-value" id="totalDisplay">R$ 0,00</div>
         </div>
+        <button class="btn-reset" onclick="limpar()">Zerar</button>
     </div>
 
     <script>
-        // Chave v4 para evitar conflitos de estrutura
-        let itens = JSON.parse(localStorage.getItem('comanda_v4')) || [];
+        // Formato Moeda Brasileira (R$ X.XXX,XX)
+        const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+        // Chave nova para o Firezone
+        let itens = JSON.parse(localStorage.getItem('comanda_firezone_v1')) || [];
 
         function atualizarUI() {
             const lista = document.getElementById('lista');
@@ -92,18 +195,18 @@
                                     `<input type="text" class="edit-input" id="edit-nome-${index}" value="${item.nome}">
                                      <input type="number" class="edit-input" id="edit-preco-${index}" value="${item.preco}" inputmode="decimal">` :
                                     `<span class="item-nome">${item.nome}</span>
-                                     <span class="item-subtotal">${item.qtd}x R$ ${item.preco.toFixed(2)}</span>
-                                     <span class="item-valor-total">R$ ${subtotalItem.toFixed(2)}</span>`
+                                     <span class="item-subtotal">${item.qtd}x ${BRL.format(item.preco)}</span>
+                                     <span class="item-valor-total">${BRL.format(subtotalItem)}</span>`
                                 }
                             </div>
                             <div class="controles">
                                 ${isEditing ?
                                     `<button class="btn-save" onclick="salvarEdicao(${index})">OK</button>` :
-                                    `<button class="btn-edit" onclick="habilitarEdicao(${index})">✎</button>`
+                                    `<button class="btn-icon" onclick="habilitarEdicao(${index})">✎</button>`
                                 }
                                 <div class="contador">
                                     <button class="btn-step" onclick="alterarQtd(${index}, -1)">−</button>
-                                    <span style="font-weight:700">${item.qtd}</span>
+                                    <span style="font-weight:700; min-width:15px; text-align:center;">${item.qtd}</span>
                                     <button class="btn-step" onclick="alterarQtd(${index}, 1)">+</button>
                                 </div>
                             </div>
@@ -111,10 +214,9 @@
                     </li>`;
             });
 
-            const taxa = somaTotal * 0.10;
-            document.getElementById('valorTaxa').innerText = taxa.toFixed(2);
-            document.getElementById('totalComDez').innerText = (somaTotal + taxa).toFixed(2);
-            localStorage.setItem('comanda_v4', JSON.stringify(itens));
+            // Atualiza o dock flutuante com formatação correta
+            document.getElementById('totalDisplay').innerText = BRL.format(somaTotal);
+            localStorage.setItem('comanda_firezone_v1', JSON.stringify(itens));
         }
 
         function adicionar() {
@@ -123,12 +225,13 @@
             const inputQtd = document.getElementById('qtd');
 
             const nome = inputNome.value.trim();
-            const preco = parseFloat(inputPreco.value);
+            const preco = parseFloat(inputPreco.value.replace(',', '.')); // Aceita vírgula se usuário digitar
             const qtd = parseInt(inputQtd.value);
 
             if (nome && preco > 0 && qtd > 0) {
                 itens.push({ nome, preco, qtd, editando: false });
                 inputNome.value = ''; inputPreco.value = ''; inputQtd.value = '1';
+                inputNome.focus();
                 atualizarUI();
             }
         }
@@ -157,12 +260,13 @@
         }
 
         function limpar() {
-            if(confirm("Zerar comanda?")) { itens = []; atualizarUI(); }
+            if(confirm("Zerar a comanda Firezone?")) { itens = []; atualizarUI(); }
         }
 
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js'); //
+            navigator.serviceWorker.register('sw.js');
         }
+        
         atualizarUI();
     </script>
 </body>
