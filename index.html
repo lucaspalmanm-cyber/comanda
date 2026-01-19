@@ -8,7 +8,12 @@
     <title>Firezone Tracker</title>
     <link rel="manifest" href="manifest.json">
     <style>
-        /* Identidade Visual Botafogo / Firezone */
+        /* Tipografia e Cores */
+        @font-face {
+            font-family: 'Aptos';
+            src: local('Aptos'), local('Aptos Display'), local('Segoe UI'), local('-apple-system');
+        }
+
         :root { 
             --bfr-black: #000000; 
             --bfr-white: #FFFFFF; 
@@ -17,7 +22,7 @@
         }
 
         body { 
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+            font-family: 'Aptos', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
             background: var(--bg-page); 
             margin: 0; 
             padding: 20px 15px; 
@@ -28,44 +33,37 @@
 
         .container { max-width: 450px; margin: 0 auto; }
         
-        /* Cabeçalho com Escudo */
+        /* Cabeçalho Limpo */
         header { 
             text-align: center; 
-            margin-bottom: 20px; 
+            margin-bottom: 25px; 
             display: flex;
             flex-direction: column;
             align-items: center;
         }
         
         .bfr-logo {
-            width: 48px;
-            height: 48px;
-            margin-bottom: 10px;
+            width: 54px;
+            height: 54px;
+            margin-bottom: 12px;
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
         }
 
         h2 { 
-            font-size: 22px; 
-            text-transform: uppercase; 
-            letter-spacing: -1px; 
+            font-size: 24px; 
+            letter-spacing: -0.5px; 
             margin: 0; 
-            font-weight: 900;
-        }
-        .sub-header { 
-            font-size: 13px; 
-            color: #555; 
-            font-weight: 500; 
-            margin-top: 4px; 
+            font-weight: 800; /* Bold Aptos */
         }
 
-        /* Card Expansível (Accordion) */
+        /* Card Expansível */
         .card-expand { 
             background: var(--bg-card); 
             border-radius: 16px; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.06); 
             margin-bottom: 25px; 
             border: 1px solid rgba(0,0,0,0.05);
-            overflow: hidden; /* Importante para a animação */
+            overflow: hidden; 
             transition: all 0.3s ease;
         }
 
@@ -75,18 +73,17 @@
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            font-weight: 700;
+            font-weight: 600;
             font-size: 16px;
         }
         
         .card-header .icon {
-            font-size: 20px;
+            font-size: 22px;
             transition: transform 0.3s ease;
+            font-weight: 300;
         }
         
-        .card-expand.open .icon {
-            transform: rotate(45deg); /* Vira um X quando aberto */
-        }
+        .card-expand.open .icon { transform: rotate(45deg); }
 
         .card-body {
             max-height: 0;
@@ -97,7 +94,7 @@
         }
 
         .card-expand.open .card-body {
-            max-height: 300px; /* Altura máxima para permitir expansão */
+            max-height: 300px; 
             opacity: 1;
             padding-bottom: 20px;
             visibility: visible;
@@ -116,6 +113,7 @@
             box-sizing: border-box; 
             outline: none;
             font-weight: 500;
+            font-family: inherit;
         }
         input:focus { border-color: var(--bfr-black); background: #FFF; }
         .input-qtd { width: 90px; text-align: center; }
@@ -134,11 +132,13 @@
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             cursor: pointer;
+            font-family: inherit;
         }
         .btn-add:active { transform: scale(0.98); }
 
         /* Lista de Itens */
-        ul { list-style: none; padding: 0; margin: 0; }
+        ul { list-style: none; padding: 0; margin: 0; position: relative; }
+        
         li { 
             background: var(--bg-card); 
             padding: 15px; 
@@ -146,7 +146,9 @@
             margin-bottom: 12px; 
             border-left: 5px solid var(--bfr-black);
             box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-            transition: all 0.2s;
+            /* Importante para a animação funcionar sem quebrar o layout */
+            transform: translate3d(0,0,0); 
+            backface-visibility: hidden;
         }
         
         .item-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
@@ -156,11 +158,24 @@
         .item-valor-total { font-weight: 700; color: var(--bfr-black); font-size: 15px; margin-top: 2px; }
 
         /* Controles */
-        .edit-input { padding: 8px; font-size: 14px; margin-bottom: 5px; border: 1px solid var(--bfr-black); width: 90%; }
+        .edit-input { padding: 8px; font-size: 14px; margin-bottom: 5px; border: 1px solid var(--bfr-black); width: 90%; font-family: inherit; }
         .controles { display: flex; align-items: center; gap: 6px; }
         
-        .move-group { display: flex; flex-direction: column; gap: 2px; }
-        .btn-move { background: #F0F0F0; color: #333; width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; border: none; }
+        .move-group { display: flex; flex-direction: column; gap: 4px; }
+        .btn-move { 
+            background: #F0F0F0; 
+            color: #333; 
+            width: 28px; 
+            height: 24px; 
+            border-radius: 6px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 10px; 
+            border: none;
+            cursor: pointer;
+        }
+        .btn-move:active { background: #d0d0d0; }
 
         .contador { display: flex; align-items: center; gap: 10px; background: #EEE; padding: 4px 8px; border-radius: 8px; }
         .btn-step { background: var(--bfr-white); width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--bfr-black); box-shadow: 0 1px 2px rgba(0,0,0,0.1); border: none; }
@@ -198,12 +213,11 @@
         <header>
             <img src="https://upload.wikimedia.org/wikipedia/commons/5/52/Botafogo_de_Futebol_e_Regatas_logo.svg" alt="Botafogo" class="bfr-logo">
             <h2>Firezone Tracker</h2>
-            <div class="sub-header">24/06 • Botafogo x Bangu</div>
         </header>
         
         <div class="card-expand" id="cardForm">
             <div class="card-header" onclick="toggleForm()">
-                <span>Novo Pedido</span>
+                <span>Adicionar Item</span>
                 <span class="icon" id="toggleIcon">+</span>
             </div>
             <div class="card-body">
@@ -232,6 +246,7 @@
     <script>
         const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
         let itens = JSON.parse(localStorage.getItem('firezone_tracker_v1')) || [];
+        let isAnimating = false; // Trava para evitar cliques duplos durante animação
 
         function toggleForm(forceClose = false) {
             const card = document.getElementById('cardForm');
@@ -241,15 +256,17 @@
                 card.classList.remove('open');
             } else {
                 card.classList.toggle('open');
-                // Se abriu, foca no nome
                 if(card.classList.contains('open')) {
-                    setTimeout(() => nomeInput.focus(), 300); // Espera a animação
+                    setTimeout(() => nomeInput.focus(), 300);
                 }
             }
         }
 
         function atualizarUI() {
             const lista = document.getElementById('lista');
+            // Se estiver animando, não redesenha para não quebrar a transição
+            if(isAnimating) return;
+
             lista.innerHTML = '';
             let somaTotal = 0;
 
@@ -260,15 +277,16 @@
                 const ultimoIndex = itens.length - 1;
 
                 const btnSubir = index > 0 
-                    ? `<button class="btn-move" onclick="moverItem(${index}, -1)">▲</button>` 
-                    : `<div style="width:24px; height:24px;"></div>`;
+                    ? `<button class="btn-move" onclick="animarEMover(${index}, -1)">▲</button>` 
+                    : `<div style="width:28px; height:24px;"></div>`;
                 
                 const btnDescer = index < ultimoIndex 
-                    ? `<button class="btn-move" onclick="moverItem(${index}, 1)">▼</button>` 
-                    : `<div style="width:24px; height:24px;"></div>`;
+                    ? `<button class="btn-move" onclick="animarEMover(${index}, 1)">▼</button>` 
+                    : `<div style="width:28px; height:24px;"></div>`;
 
+                // Adiciona ID único ao LI para animação
                 lista.innerHTML += `
-                    <li>
+                    <li id="item-${index}">
                         <div class="item-row">
                             <div class="item-detalhes">
                                 ${isEditing ? 
@@ -280,9 +298,7 @@
                                 }
                             </div>
                             <div class="controles">
-                                ${!isEditing ? 
-                                    `<div class="move-group">${btnSubir}${btnDescer}</div>` : ''
-                                }
+                                ${!isEditing ? `<div class="move-group">${btnSubir}${btnDescer}</div>` : ''}
                                 ${isEditing ?
                                     `<button class="btn-save" onclick="salvarEdicao(${index})">OK</button>` :
                                     `<button class="btn-icon" onclick="habilitarEdicao(${index})">✎</button>`
@@ -301,6 +317,44 @@
             localStorage.setItem('firezone_tracker_v1', JSON.stringify(itens));
         }
 
+        // Função Mágica de Animação
+        function animarEMover(index, direcao) {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const lista = document.getElementById('lista');
+            const itemAtual = document.getElementById(`item-${index}`);
+            const itemAlvo = document.getElementById(`item-${index + direcao}`);
+
+            if (itemAtual && itemAlvo) {
+                // Calcula a altura do deslocamento (assumindo alturas similares)
+                const altura = itemAtual.offsetHeight + 12; // +12 da margem bottom
+
+                // Aplica transição CSS
+                itemAtual.style.transition = 'transform 0.25s ease';
+                itemAlvo.style.transition = 'transform 0.25s ease';
+
+                // Move visualmente
+                const movimentoAtual = direcao * altura; // Se descer, positivo. Se subir, negativo.
+                const movimentoAlvo = -1 * movimentoAtual; // O alvo faz o movimento oposto
+
+                itemAtual.style.transform = `translateY(${movimentoAtual}px)`;
+                itemAlvo.style.transform = `translateY(${movimentoAlvo}px)`;
+
+                // Aguarda a animação terminar para trocar os dados de verdade
+                setTimeout(() => {
+                    const temp = itens[index];
+                    itens[index] = itens[index + direcao];
+                    itens[index + direcao] = temp;
+                    
+                    isAnimating = false;
+                    atualizarUI(); // Redesenha a lista na nova ordem limpa
+                }, 260); // Tempo levemente maior que a transição do CSS
+            } else {
+                isAnimating = false;
+            }
+        }
+
         function adicionar() {
             const inputNome = document.getElementById('nome');
             const inputPreco = document.getElementById('preco');
@@ -312,25 +366,11 @@
 
             if (nome && preco > 0 && qtd > 0) {
                 itens.push({ nome, preco, qtd, editando: false });
-                
-                // Limpa
                 inputNome.value = ''; inputPreco.value = ''; inputQtd.value = '1';
-                
-                // Fecha o formulário automaticamente (UX Limpa)
                 toggleForm(true); 
-                
-                // Tira o foco do teclado para ele descer no celular
                 inputNome.blur(); 
-                
                 atualizarUI();
             }
-        }
-
-        function moverItem(index, direcao) {
-            const temp = itens[index];
-            itens[index] = itens[index + direcao];
-            itens[index + direcao] = temp;
-            atualizarUI();
         }
 
         function habilitarEdicao(index) {
