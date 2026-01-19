@@ -20,10 +20,10 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
             background: var(--bg-page); 
             margin: 0; 
-            padding: 20px 15px; /* Margem lateral de 15px */
+            padding: 20px 15px; 
             user-select: none; 
             color: var(--bfr-black);
-            padding-bottom: 120px; /* Espaço extra para o rodapé não cobrir nada */
+            padding-bottom: 120px; 
         }
 
         .container { max-width: 450px; margin: 0 auto; }
@@ -38,12 +38,12 @@
             font-weight: 900;
         }
         .sub-header { 
-            font-size: 13px; 
+            font-size: 14px; /* Aumentei levemente para ficar legível sem o caps */
             color: #555; 
-            font-weight: 600; 
-            letter-spacing: 0.5px; 
-            text-transform: uppercase; 
+            font-weight: 500; 
+            letter-spacing: 0px; /* Espaçamento normal */
             margin-top: 5px; 
+            /* text-transform removido para escrita normal */
         }
 
         /* Card de Input */
@@ -112,17 +112,14 @@
         .btn-icon { background: #EEE; color: #333; padding: 8px; border-radius: 8px; font-size: 14px; }
         .btn-save { background: var(--bfr-black); color: white; padding: 8px 12px; font-size: 12px; border-radius: 8px; }
 
-        /* Rodapé Fixo (Total) Ajustado */
+        /* Rodapé Fixo (Total) */
         .total-dock { 
             position: fixed; 
             bottom: 20px; 
             left: 50%; 
             transform: translateX(-50%); 
-            
-            /* Ajuste de largura para igualar ao card de cima */
-            width: calc(100% - 30px); /* 100% menos as margens laterais do body (15px + 15px) */
-            max-width: 450px; /* Mesmo max-width do container */
-            
+            width: calc(100% - 30px);
+            max-width: 450px;
             background: var(--bfr-black); 
             color: var(--bfr-white);
             padding: 15px 20px; 
@@ -132,18 +129,16 @@
             align-items: center;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             z-index: 100;
-            box-sizing: border-box; /* Garante que o padding não aumente a largura */
+            box-sizing: border-box; 
         }
         
         .total-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; margin-bottom: 2px; }
         .total-value { font-size: 22px; font-weight: 800; }
         
-        .dock-actions { display: flex; gap: 8px; }
-        
         .btn-dock { 
             border-radius: 8px; 
             padding: 10px; 
-            font-size: 18px; /* Emoji maior */
+            font-size: 18px; 
             display: flex;
             align-items: center;
             justify-content: center;
@@ -156,7 +151,7 @@
     <div class="container">
         <header>
             <h2>Firezone Tracker</h2>
-            <div class="sub-header">24/06 - Botafogo x Bangu</div>
+            <div class="sub-header">24/06 • Botafogo x Bangu</div>
         </header>
         
         <div class="card">
@@ -177,21 +172,15 @@
             <div class="total-value" id="totalDisplay">R$ 0,00</div>
         </div>
         
-        <div class="dock-actions">
-            <button class="btn-dock" style="background: #25D366; color: white;" onclick="compartilharZap()">
-                📱
-            </button>
-            <button class="btn-dock" style="background: #333; color: white;" onclick="limpar()">
-                🗑️
-            </button>
-        </div>
+        <button class="btn-dock" style="background: #333; color: white;" onclick="limpar()">
+            🗑️
+        </button>
     </div>
 
     <script>
-        // Formato Moeda Brasileira
         const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
-        // Chave local storage
+        // Chave mantida para não perder dados anteriores
         let itens = JSON.parse(localStorage.getItem('firezone_tracker_v1')) || [];
 
         function atualizarUI() {
@@ -277,22 +266,6 @@
 
         function limpar() {
             if(confirm("Zerar a comanda Firezone?")) { itens = []; atualizarUI(); }
-        }
-
-        function compartilharZap() {
-            if (itens.length === 0) { alert("Comanda vazia!"); return; }
-            
-            let texto = "*🔥 Firezone Tracker - 24/06 (Botafogo x Bangu)*\n\n";
-            let total = 0;
-
-            itens.forEach(item => {
-                let sub = item.preco * item.qtd;
-                total += sub;
-                texto += `${item.qtd}x ${item.nome} - ${BRL.format(sub)}\n`;
-            });
-
-            texto += `\n*TOTAL: ${BRL.format(total)}*`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
         }
 
         if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
