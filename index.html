@@ -12,7 +12,6 @@
         body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); margin: 0; padding: 20px; user-select: none; color: #1c1c1e; }
         .container { max-width: 400px; margin: 0 auto; }
         
-        /* Formulário de Entrada */
         .card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
         .input-group { display: flex; gap: 8px; margin-bottom: 10px; }
         input { width: 100%; border: 1px solid #d1d1d6; border-radius: 8px; padding: 12px; font-size: 16px; box-sizing: border-box; }
@@ -24,22 +23,27 @@
 
         /* Lista Dinâmica */
         ul { list-style: none; padding: 0; }
-        li { background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        li { background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         
+        .item-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .item-detalhes { display: flex; flex-direction: column; flex-grow: 1; }
-        .item-nome { font-weight: 700; font-size: 16px; margin-bottom: 2px; }
+        .item-nome { font-weight: 700; font-size: 16px; }
         .item-subtotal { font-size: 13px; color: #8e8e93; }
-        .item-valor-total { font-weight: 600; color: var(--primary); margin-top: 2px; }
+        .item-valor-total { font-weight: 600; color: var(--primary); }
 
-        /* Contador de Quantidade */
+        /* Inputs de Edição na Lista */
+        .edit-input { padding: 8px; font-size: 14px; margin-bottom: 5px; border: 1px solid var(--primary); }
+
+        /* Controles */
+        .controles { display: flex; align-items: center; gap: 10px; }
         .contador { display: flex; align-items: center; gap: 12px; background: #f8f8f8; padding: 5px 10px; border-radius: 20px; }
-        .btn-step { background: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-size: 18px; color: var(--primary); }
-        .qtd-num { font-weight: 700; min-width: 20px; text-align: center; }
+        .btn-step { background: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 2px rgba(0,0,0,0.1); font-size: 18px; color: var(--primary); }
+        .btn-edit { background: #E5E5EA; color: #3A3A3C; padding: 8px 12px; font-size: 12px; }
+        .btn-save { background: var(--success); color: white; padding: 8px 12px; font-size: 12px; }
 
-        /* Rodapé de Totais */
+        /* Totais */
         .total-section { background: white; padding: 20px; border-radius: 15px; text-align: right; margin-top: 20px; }
-        .tax { font-size: 14px; color: #8e8e93; }
-        .grand-total { font-size: 26px; font-weight: 800; color: #000; margin-top: 5px; }
+        .grand-total { font-size: 26px; font-weight: 800; color: #000; }
         .btn-clear { background: transparent; color: var(--danger); margin-top: 15px; width: 100%; font-size: 14px; }
     </style>
 </head>
@@ -48,25 +52,26 @@
         <h2 style="text-align: center;">📊 Comanda Pro</h2>
         
         <div class="card">
-            <input type="text" id="nome" placeholder="Nome do item (ex: Pizza)" style="margin-bottom: 10px;">
+            <input type="text" id="nome" placeholder="Nome do item" style="margin-bottom: 10px;">
             <div class="input-group">
-                <input type="number" id="preco" placeholder="Preço Unit. R$" inputmode="decimal">
+                <input type="number" id="preco" placeholder="Preço R$" inputmode="decimal">
                 <input type="number" id="qtd" value="1" class="input-qtd" inputmode="numeric">
             </div>
-            <button class="btn-add" onclick="adicionar()">Adicionar à Comanda</button>
+            <button class="btn-add" onclick="adicionar()">Adicionar</button>
         </div>
 
         <ul id="lista"></ul>
 
         <div class="total-section">
-            <div class="tax">Taxa de Serviço (10%): R$ <span id="valorTaxa">0.00</span></div>
+            <div style="font-size: 14px; color: #8e8e93;">Taxa (10%): R$ <span id="valorTaxa">0.00</span></div>
             <div class="grand-total">R$ <span id="totalComDez">0.00</span></div>
             <button class="btn-clear" onclick="limpar()">Zerar Comanda</button>
         </div>
     </div>
 
     <script>
-        let itens = JSON.parse(localStorage.getItem('comanda_v3')) || [];
+        // Chave v4 para evitar conflitos de estrutura
+        let itens = JSON.parse(localStorage.getItem('comanda_v4')) || [];
 
         function atualizarUI() {
             const lista = document.getElementById('lista');
@@ -77,17 +82,31 @@
                 const subtotalItem = item.preco * item.qtd;
                 somaTotal += subtotalItem;
 
+                const isEditing = item.editando;
+
                 lista.innerHTML += `
                     <li>
-                        <div class="item-detalhes">
-                            <span class="item-nome">${item.nome}</span>
-                            <span class="item-subtotal">${item.qtd}x R$ ${item.preco.toFixed(2)}</span>
-                            <span class="item-valor-total">R$ ${subtotalItem.toFixed(2)}</span>
-                        </div>
-                        <div class="contador">
-                            <button class="btn-step" onclick="alterarQtd(${index}, -1)">−</button>
-                            <span class="qtd-num">${item.qtd}</span>
-                            <button class="btn-step" onclick="alterarQtd(${index}, 1)">+</button>
+                        <div class="item-row">
+                            <div class="item-detalhes">
+                                ${isEditing ? 
+                                    `<input type="text" class="edit-input" id="edit-nome-${index}" value="${item.nome}">
+                                     <input type="number" class="edit-input" id="edit-preco-${index}" value="${item.preco}" inputmode="decimal">` :
+                                    `<span class="item-nome">${item.nome}</span>
+                                     <span class="item-subtotal">${item.qtd}x R$ ${item.preco.toFixed(2)}</span>
+                                     <span class="item-valor-total">R$ ${subtotalItem.toFixed(2)}</span>`
+                                }
+                            </div>
+                            <div class="controles">
+                                ${isEditing ?
+                                    `<button class="btn-save" onclick="salvarEdicao(${index})">OK</button>` :
+                                    `<button class="btn-edit" onclick="habilitarEdicao(${index})">✎</button>`
+                                }
+                                <div class="contador">
+                                    <button class="btn-step" onclick="alterarQtd(${index}, -1)">−</button>
+                                    <span style="font-weight:700">${item.qtd}</span>
+                                    <button class="btn-step" onclick="alterarQtd(${index}, 1)">+</button>
+                                </div>
+                            </div>
                         </div>
                     </li>`;
             });
@@ -95,8 +114,7 @@
             const taxa = somaTotal * 0.10;
             document.getElementById('valorTaxa').innerText = taxa.toFixed(2);
             document.getElementById('totalComDez').innerText = (somaTotal + taxa).toFixed(2);
-            
-            localStorage.setItem('comanda_v3', JSON.stringify(itens));
+            localStorage.setItem('comanda_v4', JSON.stringify(itens));
         }
 
         function adicionar() {
@@ -109,40 +127,42 @@
             const qtd = parseInt(inputQtd.value);
 
             if (nome && preco > 0 && qtd > 0) {
-                itens.push({ nome, preco, qtd });
-                
-                // Limpa campos
-                inputNome.value = '';
-                inputPreco.value = '';
-                inputQtd.value = '1';
-                inputNome.focus();
-                
+                itens.push({ nome, preco, qtd, editando: false });
+                inputNome.value = ''; inputPreco.value = ''; inputQtd.value = '1';
+                atualizarUI();
+            }
+        }
+
+        function habilitarEdicao(index) {
+            itens[index].editando = true;
+            atualizarUI();
+        }
+
+        function salvarEdicao(index) {
+            const novoNome = document.getElementById(`edit-nome-${index}`).value.trim();
+            const novoPreco = parseFloat(document.getElementById(`edit-preco-${index}`).value);
+
+            if (novoNome && novoPreco > 0) {
+                itens[index].nome = novoNome;
+                itens[index].preco = novoPreco;
+                itens[index].editando = false;
                 atualizarUI();
             }
         }
 
         function alterarQtd(index, delta) {
             itens[index].qtd += delta;
-            
-            // Remove o item se a quantidade chegar a zero
-            if (itens[index].qtd <= 0) {
-                itens.splice(index, 1);
-            }
-            
+            if (itens[index].qtd <= 0) itens.splice(index, 1);
             atualizarUI();
         }
 
         function limpar() {
-            if(confirm("Deseja apagar todos os itens?")) {
-                itens = [];
-                atualizarUI();
-            }
+            if(confirm("Zerar comanda?")) { itens = []; atualizarUI(); }
         }
 
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
+            navigator.serviceWorker.register('sw.js'); //
         }
-
         atualizarUI();
     </script>
 </body>
