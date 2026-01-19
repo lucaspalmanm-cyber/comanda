@@ -28,7 +28,6 @@
 
         .container { max-width: 450px; margin: 0 auto; }
         
-        /* Cabeçalho */
         header { text-align: center; margin-bottom: 25px; }
         h2 { 
             font-size: 24px; 
@@ -38,15 +37,12 @@
             font-weight: 900;
         }
         .sub-header { 
-            font-size: 14px; /* Aumentei levemente para ficar legível sem o caps */
+            font-size: 14px; 
             color: #555; 
             font-weight: 500; 
-            letter-spacing: 0px; /* Espaçamento normal */
             margin-top: 5px; 
-            /* text-transform removido para escrita normal */
         }
 
-        /* Card de Input */
         .card { 
             background: var(--bg-card); 
             border-radius: 16px; 
@@ -72,7 +68,6 @@
         input:focus { border-color: var(--bfr-black); background: #FFF; }
         .input-qtd { width: 90px; text-align: center; }
 
-        /* Botão Principal */
         button { border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: transform 0.1s; }
         button:active { transform: scale(0.96); opacity: 0.9; }
         
@@ -96,6 +91,7 @@
             margin-bottom: 12px; 
             border-left: 5px solid var(--bfr-black);
             box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            transition: all 0.2s;
         }
         
         .item-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
@@ -104,15 +100,31 @@
         .item-subtotal { font-size: 13px; color: #666; font-weight: 500;}
         .item-valor-total { font-weight: 700; color: var(--bfr-black); font-size: 15px; margin-top: 2px; }
 
-        /* Edição e Controles */
+        /* Controles (Botões) */
         .edit-input { padding: 8px; font-size: 14px; margin-bottom: 5px; border: 1px solid var(--bfr-black); width: 90%; }
-        .controles { display: flex; align-items: center; gap: 8px; }
+        
+        .controles { display: flex; align-items: center; gap: 6px; }
+        
+        /* Grupo de Ordenação */
+        .move-group { display: flex; flex-direction: column; gap: 2px; }
+        .btn-move {
+            background: #F0F0F0;
+            color: #333;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
         .contador { display: flex; align-items: center; gap: 10px; background: #EEE; padding: 4px 8px; border-radius: 8px; }
         .btn-step { background: var(--bfr-white); width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--bfr-black); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         .btn-icon { background: #EEE; color: #333; padding: 8px; border-radius: 8px; font-size: 14px; }
         .btn-save { background: var(--bfr-black); color: white; padding: 8px 12px; font-size: 12px; border-radius: 8px; }
 
-        /* Rodapé Fixo (Total) */
+        /* Rodapé Fixo */
         .total-dock { 
             position: fixed; 
             bottom: 20px; 
@@ -171,7 +183,6 @@
             <div class="total-label">Total da Comanda</div>
             <div class="total-value" id="totalDisplay">R$ 0,00</div>
         </div>
-        
         <button class="btn-dock" style="background: #333; color: white;" onclick="limpar()">
             🗑️
         </button>
@@ -179,8 +190,6 @@
 
     <script>
         const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-
-        // Chave mantida para não perder dados anteriores
         let itens = JSON.parse(localStorage.getItem('firezone_tracker_v1')) || [];
 
         function atualizarUI() {
@@ -192,6 +201,16 @@
                 const subtotalItem = item.preco * item.qtd;
                 somaTotal += subtotalItem;
                 const isEditing = item.editando;
+                const ultimoIndex = itens.length - 1;
+
+                // Botões de Mover (Condicionais)
+                const btnSubir = index > 0 
+                    ? `<button class="btn-move" onclick="moverItem(${index}, -1)">▲</button>` 
+                    : `<div style="width:24px; height:24px;"></div>`; // Espaço vazio para alinhar
+                
+                const btnDescer = index < ultimoIndex 
+                    ? `<button class="btn-move" onclick="moverItem(${index}, 1)">▼</button>` 
+                    : `<div style="width:24px; height:24px;"></div>`;
 
                 lista.innerHTML += `
                     <li>
@@ -206,6 +225,13 @@
                                 }
                             </div>
                             <div class="controles">
+                                ${!isEditing ? 
+                                    `<div class="move-group">
+                                        ${btnSubir}
+                                        ${btnDescer}
+                                    </div>` : ''
+                                }
+
                                 ${isEditing ?
                                     `<button class="btn-save" onclick="salvarEdicao(${index})">OK</button>` :
                                     `<button class="btn-icon" onclick="habilitarEdicao(${index})">✎</button>`
@@ -239,6 +265,14 @@
                 inputNome.focus();
                 atualizarUI();
             }
+        }
+
+        function moverItem(index, direcao) {
+            // Troca os elementos de posição no array
+            const temp = itens[index];
+            itens[index] = itens[index + direcao];
+            itens[index + direcao] = temp;
+            atualizarUI();
         }
 
         function habilitarEdicao(index) {
